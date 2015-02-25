@@ -1,0 +1,8 @@
+[package]
+
+name = "hyper_block_example"
+version = "0.0.1"
+authors = ["Timon Vonk <timonv@gmail.com>"]
+
+[dependencies]
+hyper = "*"
