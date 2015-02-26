@@ -3,6 +3,7 @@
 extern crate hyper;
 
 use std::sync::Mutex;
+use std::sync::Arc;
 use std::sync::mpsc::channel;
 use std::old_io::net::ip::Ipv4Addr;
 use hyper::server::{Server, Request, Response};
@@ -18,15 +19,14 @@ fn get_message() -> String {
     let (tx, rx) = channel();
     let mtx = Mutex::new(tx);
 
-    let mut guard = server.listen(move |_: Request, res: Response| {
+    let mut guard = server.listen_threads(move |_: Request, res: Response| {
         println!("Request received!");
         mtx.lock().unwrap().send("Boosh!").unwrap();
         println!("Request ended!");
-        println!("Is poisoned {}", mtx.is_poisoned());
 
         let mut res = res.start().unwrap();
         res.end().unwrap();
-    }).unwrap();
+    }, 1).unwrap();
 
     let message = rx.recv().unwrap();
     guard.close().unwrap();
